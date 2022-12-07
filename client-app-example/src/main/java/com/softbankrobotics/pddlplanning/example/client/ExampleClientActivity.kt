@@ -31,44 +31,51 @@ class ExampleClientActivity : AppCompatActivity() {
         mainText.text = "Searching plan..."
         val checkingPermission = permissionCheckFunction()
         coroutineScope.launch {
-            checkingPermission.await()
-            val plannerServiceIntent = Intent(IPDDLPlannerService.ACTION_SEARCH_PLANS_FROM_PDDL)
-            plannerServiceIntent.`package` = plannerServicePackage
-            val planSearchFunction =
-                createPlanSearchFunctionFromService(
-                    this@ExampleClientActivity,
-                    plannerServiceIntent
-                )
-            val domain = "(define (domain hello_domain)\n" +
-                    "   (:requirements :adl :negative-preconditions :universal-preconditions)\n" +
-                    "   (:types)\n" +
-                    "   (:constants)\n"
-            "   (:predicates\n" +
-                    "       (was_greeted ?o)\n" +
-                    "   )\n" +
-                    "   (:action hello\n" +
-                    "       :parameters (?o)\n" +
-                    "       :precondition ()\n" +
-                    "       :effect (was_greeted ?o)\n" +
-                    "   )\n" +
-                    ")"
+            try {
+                checkingPermission.await()
+                val plannerServiceIntent = Intent(IPDDLPlannerService.ACTION_SEARCH_PLANS_FROM_PDDL)
+                plannerServiceIntent.`package` = plannerServicePackage
+                val planSearchFunction =
+                    createPlanSearchFunctionFromService(
+                        this@ExampleClientActivity,
+                        plannerServiceIntent
+                    )
+                val domain = "(define (domain hello_domain)\n" +
+                        "   (:requirements :adl :negative-preconditions :universal-preconditions)\n" +
+                        "   (:types)\n" +
+                        "   (:constants)\n"
+                "   (:predicates\n" +
+                        "       (was_greeted ?o)\n" +
+                        "   )\n" +
+                        "   (:action hello\n" +
+                        "       :parameters (?o)\n" +
+                        "       :precondition ()\n" +
+                        "       :effect (was_greeted ?o)\n" +
+                        "   )\n" +
+                        ")"
 
-            val problem = "(define (problem hello_problem)\n" +
-                    "   (:domain hello_domain)\n" +
-                    "   (:requirements :adl :negative-preconditions :universal-preconditions)\n" +
-                    "   (:objects\n" +
-                    "       world\n" +
-                    "   )\n" +
-                    "   (:init)\n"
-            "   (:goal\n" +
-                    "       (forall (?o) (was_greeted ?o))\n" +
-                    "   )\n" +
-                    ")"
+                val problem = "(define (problem hello_problem)\n" +
+                        "   (:domain hello_domain)\n" +
+                        "   (:requirements :adl :negative-preconditions :universal-preconditions)\n" +
+                        "   (:objects\n" +
+                        "       world\n" +
+                        "   )\n" +
+                        "   (:init)\n"
+                "   (:goal\n" +
+                        "       (forall (?o) (was_greeted ?o))\n" +
+                        "   )\n" +
+                        ")"
 
-            val plan = planSearchFunction(domain, problem, null)
+                val plan = planSearchFunction(domain, problem, null)
 
-            runOnUiThread {
-                mainText.text = "Found plan:\n${plan.joinToString("\n")}"
+                runOnUiThread {
+                    mainText.text = "Found plan:\n${plan.joinToString("\n")}"
+                }
+            } catch (e: Throwable) {
+                runOnUiThread {
+                    mainText.text = "Error: $e\nSee logs for more details."
+                    e.printStackTrace()
+                }
             }
         }
     }
