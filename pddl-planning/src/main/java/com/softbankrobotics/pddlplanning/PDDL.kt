@@ -1,9 +1,5 @@
 package com.softbankrobotics.pddlplanning
 
-import com.softbankrobotics.pddlplanning.Fact
-import com.softbankrobotics.pddlplanning.Goal
-import com.softbankrobotics.pddlplanning.Instance
-
 
 /** Checks that the character at the given position is '('. */
 private fun assertOpenParenthesis(pddl: String, position: Int) {
